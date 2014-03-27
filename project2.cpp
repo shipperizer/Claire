@@ -8,6 +8,49 @@
 
 using namespace std;
 
+float ** matrixGen(char * filename, int &rows)
+{
+  cout << "Be sure that the file has no more than 5000 rows" << '\n'; 
+  string line;
+  string splitter="";
+  rows=0;
+  float ** matrix=new float *[5000];
+  ifstream myfile (filename);
+
+  if (myfile.is_open())
+
+  {
+    int i=0,h=0,j=0;
+    float * tmp=new float[2];
+    while ( getline (myfile,line) && j<5000 )
+    { 
+      i=0;h=0;
+      while(i<line.length() && h<3)
+      {
+        splitter="";
+        while(line[i] == char(32) && i<line.length()) i++;
+        while(line[i] != char(32) && i<line.length() ) 
+          {
+           if(h>0) splitter+=line[i];
+           i++;
+          }
+        if (h>0) tmp[h-1]= atof(splitter.c_str());
+        h++;
+      }
+      matrix[j]=new float[2];
+      matrix[j][0]=tmp[0];
+      matrix[j][1]=tmp[1];
+      j++;
+    }
+   myfile.close();
+   rows=j;
+ }
+ else {cout << "Unable to open file"; } 
+ 
+ return matrix;
+}
+
+
 float ** matr_Med()
 {
   float ** med=new float *[4];
@@ -31,25 +74,25 @@ float dist_eucl( float *a, float *b)
   return dist;
 }
 
-float ** matr_D(float ** med, float * c1, float * c2)
+float ** matr_D(float ** m, float ** c, int centroids, int entries)
 {
- float ** matr_D = new float * [2];
- matr_D[0]=new float [4];
- matr_D[1]=new float [4];
- for (int i=0;i<4;i++)
-  {
-    matr_D[0][i]=dist_eucl(c1,med[i]);
-    matr_D[1][i]=dist_eucl(c2,med[i]);
-  }
+ float ** matr_D = new float * [centroids];
+ for(int i=0;i<centroids;i++)
+    matr_D[i]=new float [entries];
+ 
+ for (int i=0;i<entries;i++)
+   for (int h=0;h<centroids;h++)
+     matr_D[h][i]=dist_eucl(c[h],m[i]);
+ 
  return matr_D; 
 }
 
-float ** matr_G(float ** m)
+float ** matr_G(float ** m, int centroids, int rows)
 {
- float ** matr_G = new float * [2];
- matr_G[0]=new float [4];
- matr_G[1]=new float [4];
- for (int i=0;i<4;i++)
+ float ** matr_G = new float * [centroids];
+ matr_G[0]=new float [rows];
+ matr_G[1]=new float [rows];
+ for (int i=0;i<rows;i++)
   {
     if(m[0][i]>m[1][i])
      {
@@ -65,12 +108,12 @@ float ** matr_G(float ** m)
  return matr_G; 
 }
 
-float * centroid(float ** start, float * G_sub)
+float * centroid(float ** start, float * G_sub, int rows)
 {
  float * centroid=new float[2];
  centroid[0]=0;centroid[1]=0;
  int c=0;
- for (int i=0;i<4;i++)
+ for (int i=0;i<rows;i++)
   {
     if(G_sub[i]==1)
      { 
@@ -84,10 +127,10 @@ float * centroid(float ** start, float * G_sub)
  return centroid;  
 }
 
-int G_diff(float ** A, float ** B)
+int G_diff(float ** A, float ** B, int centroids, int rows)
 {
-  for(int i=0;i<2;i++)
-    for (int h=0;h<4;h++)
+  for(int i=0;i<centroids;i++)
+    for (int h=0;h<rows;h++)
     {
       if(A[i][h]!=B[i][h]) return 0;
     }
@@ -95,24 +138,45 @@ int G_diff(float ** A, float ** B)
 }
 
 int main () {
-	float ** med=matr_Med();
-  float * c1=new float[2], * c2=new float[2];
-  c1[0]=1;c1[1]=1;
-  c2[0]=2;c2[1]=1;
-  float ** D=matr_D(med,c1,c2);
-  float ** G=matr_G(D);
-  cout << "Matrix D" << '\n';
-  for(int i=0;i<2;i++)
+
+  char * file="example.txt";
+  int rows=0;
+  float ** matrix=matrixGen(file, rows);
+  /*for(int m=0;m<rows;m++)
     {
-     for(int h=0;h<4;h++)
+     cout << m << " ";    
+     for(int n=0;n<2;n++)
+      cout << matrix[m][n] << " " ;
+     cout << '\n';
+    }
+  */
+	float ** med=matr_Med();
+  float ** c=new float*[10];
+  cout << "Creating centroids" << '\n';
+  for(int i=0;i<10;i++)
+    {
+     c[i]=new float[2];
+     c[i][0]=matrix[i][0];
+     c[i][1]=matrix[i][1];
+     cout << "C" << i << " " << c[i][0] << " - " << c[i][1] << '\n';
+    }
+  
+  float ** D=matr_D(matrix,c,10,rows);
+  
+  //float ** G=matr_G(D);
+  cout << "Matrix D" << '\n';
+  for(int i=0;i<10;i++)
+    {
+     for(int h=0;h<rows;h++)
       cout << D[i][h] << " " ; 
      cout << '\n';
     }
   cout << "---------------------" << '\n';
+  /*
   cout << "Matrix G" << '\n';
   for(int i=0;i<2;i++)
     {
-     for(int h=0;h<4;h++)
+     for(int h=0;h<10;h++)
       cout << G[i][h] << " " ; 
      cout << '\n';
     }
@@ -121,8 +185,9 @@ int main () {
   c2=centroid(med,G[1]);
   cout << "c1 =" << c1[0]<<"-"<<c1[1] << '\n';
   cout << "c2 =" << c2[0]<<"-"<<c2[1] << '\n';
-  
+  */
   /*--------------ITERATIVE----------------*/
+  /*
   while(G_diff(G,matr_G(matr_D(med,c1,c2)))==0) 
   {
     D=matr_D(med,c1,c2);
@@ -148,7 +213,7 @@ int main () {
    cout << "c1 =" << c1[0]<<"-"<<c1[1] << '\n';
    cout << "c2 =" << c2[0]<<"-"<<c2[1] << '\n';
   }
-
+*/
   return 0;
 
 }

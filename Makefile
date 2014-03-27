@@ -1,12 +1,15 @@
 CPP=g++
-FILES=reading.cpp
+FILES=
 OUTPUT=project
+OUTPUTS= project1 project2 project3
 
-install: clean compile
 
 compile:	
 	$(CPP) $(OUTPUT)1.cpp -o $(OUTPUT)1
-	@echo Now launch the executable with ./projectNO
+	$(CPP) $(OUTPUT)2.cpp -o $(OUTPUT)2
+	@echo Now launch the executable with ./project\#X
+
+install: clean compile
 
 clean:
-	rm $(OUTPUT)
+	rm $(OUTPUTS)

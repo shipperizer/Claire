@@ -90,20 +90,20 @@ float ** matr_D(float ** m, float ** c, int centroids, int entries)
 float ** matr_G(float ** m, int centroids, int rows)
 {
  float ** matr_G = new float * [centroids];
- matr_G[0]=new float [rows];
- matr_G[1]=new float [rows];
+ int max_i=0;
+ for (int i=0;i<centroids;i++)
+    matr_G[i]=new float [rows];
+ 
  for (int i=0;i<rows;i++)
   {
-    if(m[0][i]>m[1][i])
-     {
-      matr_G[0][i]=0;
-      matr_G[1][i]=1;
-     } 
-    else
-     {
-       matr_G[0][i]=1;
-       matr_G[1][i]=0;
-     }
+    max_i=0;
+    for(int h=0;h<centroids;h++)
+      {
+        if(m[h][i]<m[max_i][i]) max_i=h;
+        matr_G[h][i]=0;  
+      }
+    matr_G[max_i][i]=1;  
+
   }
  return matr_G; 
 }
@@ -152,8 +152,9 @@ int main () {
   */
 	float ** med=matr_Med();
   float ** c=new float*[10];
-  cout << "Creating centroids" << '\n';
-  for(int i=0;i<10;i++)
+  int centroids=10;
+  cout << "Creating "<< centroids <<" centroids" << '\n';
+  for(int i=0;i<centroids;i++)
     {
      c[i]=new float[2];
      c[i][0]=matrix[i][0];
@@ -161,31 +162,32 @@ int main () {
      cout << "C" << i << " " << c[i][0] << " - " << c[i][1] << '\n';
     }
   
-  float ** D=matr_D(matrix,c,10,rows);
-  
-  //float ** G=matr_G(D);
+  float ** D=matr_D(matrix,c,centroids,rows);
+  float ** G=matr_G(D,centroids,rows);
+
   cout << "Matrix D" << '\n';
-  for(int i=0;i<10;i++)
+  for(int i=0;i<centroids;i++)
     {
      for(int h=0;h<rows;h++)
       cout << D[i][h] << " " ; 
      cout << '\n';
     }
   cout << "---------------------" << '\n';
-  /*
+  
   cout << "Matrix G" << '\n';
-  for(int i=0;i<2;i++)
+  for(int i=0;i<centroids;i++)
     {
-     for(int h=0;h<10;h++)
+     for(int h=0;h<rows;h++)
       cout << G[i][h] << " " ; 
      cout << '\n';
     }
   cout << "---------------------" << '\n';
+  /*
   c1=centroid(med,G[0]);
   c2=centroid(med,G[1]);
   cout << "c1 =" << c1[0]<<"-"<<c1[1] << '\n';
   cout << "c2 =" << c2[0]<<"-"<<c2[1] << '\n';
-  */
+  
   /*--------------ITERATIVE----------------*/
   /*
   while(G_diff(G,matr_G(matr_D(med,c1,c2)))==0) 

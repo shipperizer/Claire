@@ -107,15 +107,11 @@ float ** matr_G(float ** m, int centroids, int rows)
   }
  return matr_G; 
 }
-/*
-float ** centroid(float ** start, float * G_sub, int centroids, int rows)
+
+float * centroid(float ** start, float * G_sub, int rows)
 {
- float ** centroid=new float*[centroids];
- for(int i=0;i<centroids;i++)
-  {
-    centroid[i]=new float[2]
-    centroid[0]=0;
-    centroid[1]=0;}
+ float * centroid=new float[2];
+ centroid[0]=0;centroid[1]=0;
  int c=0;
  for (int i=0;i<rows;i++)
   {
@@ -130,7 +126,7 @@ float ** centroid(float ** start, float * G_sub, int centroids, int rows)
  centroid[1]/=c;
  return centroid;  
 }
-*/
+
 int G_diff(float ** A, float ** B, int centroids, int rows)
 {
   for(int i=0;i<centroids;i++)
@@ -154,7 +150,7 @@ int main () {
      cout << '\n';
     }
   */
-	float ** med=matr_Med();
+	
   float ** c=new float*[10];
   int centroids=10;
   cout << "Creating "<< centroids <<" centroids" << '\n';
@@ -186,40 +182,51 @@ int main () {
      cout << '\n';
     }
   cout << "---------------------" << '\n';
-  /*
-  c1=centroid(med,G[0]);
-  c2=centroid(med,G[1]);
-  cout << "c1 =" << c1[0]<<"-"<<c1[1] << '\n';
-  cout << "c2 =" << c2[0]<<"-"<<c2[1] << '\n';
+  for(int i=0;i<centroids;i++)
+    {
+      c[i]=centroid(matrix,G[i],rows);   
+      cout << "C" << i << " " << c[i][0] << " - " << c[i][1] << '\n';
+    }
+  cout << "---------------------" << '\n';
+  
   
   /*--------------ITERATIVE----------------*/
+  
   /*
-  while(G_diff(G,matr_G(matr_D(med,c1,c2)))==0) 
+  float ** matr_D(float ** m, float ** c, int centroids, int entries)
+  float ** matr_G(float ** m, int centroids, int rows)
+  G_diff(float ** A, float ** B, int centroids, int rows)
+  */
+  cout << "G_diff " << G_diff(G,matr_G(matr_D(matrix,c,centroids,rows),centroids,rows),centroids,rows) << '\n';
+
+  while(G_diff(G,matr_G(matr_D(matrix,c,centroids,rows),centroids,rows),centroids,rows) ==0 )
   {
-    D=matr_D(med,c1,c2);
-    G=matr_G(D);
+    D=matr_D(matrix,c,centroids,rows);
+    G=matr_G(D,centroids,rows);
     cout << "Matrix D" << '\n';
-   for(int i=0;i<2;i++)
+    for(int i=0;i<centroids;i++)
     {
-     for(int h=0;h<4;h++)
+     for(int h=0;h<rows;h++)
       cout << D[i][h] << " " ; 
      cout << '\n';
     }
-   cout << "---------------------" << '\n';
-   cout << "Matrix G" << '\n';
-   for(int i=0;i<2;i++)
-    {
-     for(int h=0;h<4;h++)
+    cout << "---------------------" << '\n';
+    cout << "Matrix G" << '\n';
+    for(int i=0;i<centroids;i++)
+     {
+      for(int h=0;h<rows;h++)
       cout << G[i][h] << " " ; 
-     cout << '\n';
-    }
-   cout << "---------------------" << '\n';
-   c1=centroid(med,G[0]);
-   c2=centroid(med,G[1]);
-   cout << "c1 =" << c1[0]<<"-"<<c1[1] << '\n';
-   cout << "c2 =" << c2[0]<<"-"<<c2[1] << '\n';
+      cout << '\n';
+     }
+     cout << "---------------------" << '\n';
+    for(int i=0;i<centroids;i++)
+     {
+      c[i]=centroid(matrix,G[i],rows);   
+      cout << "C" << i << " " << c[i][0] << " - " << c[i][1] << '\n';
+     }
+    cout << "---------------------" << '\n';
   }
-*/
+
   return 0;
 
 }

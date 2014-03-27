@@ -107,11 +107,15 @@ float ** matr_G(float ** m, int centroids, int rows)
   }
  return matr_G; 
 }
-
-float * centroid(float ** start, float * G_sub, int rows)
+/*
+float ** centroid(float ** start, float * G_sub, int centroids, int rows)
 {
- float * centroid=new float[2];
- centroid[0]=0;centroid[1]=0;
+ float ** centroid=new float*[centroids];
+ for(int i=0;i<centroids;i++)
+  {
+    centroid[i]=new float[2]
+    centroid[0]=0;
+    centroid[1]=0;}
  int c=0;
  for (int i=0;i<rows;i++)
   {
@@ -126,7 +130,7 @@ float * centroid(float ** start, float * G_sub, int rows)
  centroid[1]/=c;
  return centroid;  
 }
-
+*/
 int G_diff(float ** A, float ** B, int centroids, int rows)
 {
   for(int i=0;i<centroids;i++)

@@ -51,23 +51,6 @@ float ** matrixGen(char * filename, int &rows)
 }
 
 
-float ** matr_Med()
-{
-  float ** med=new float *[4];
-  for(int i=0;i<4;i++)
-    med[i]=new float[2];  
-  
-  med[0][0]=1;
-  med[0][1]=1;
-  med[1][0]=2;
-  med[1][1]=1;
-  med[2][0]=4;
-  med[2][1]=3;
-  med[3][0]=5;
-  med[3][1]=4;
-  return med;
-}
-
 float dist_eucl( float *a, float *b)
 {
   float dist = (float)sqrt(pow((a[0]-b[0]),2)+pow((a[1]-b[1]),2));

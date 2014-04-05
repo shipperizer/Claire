@@ -9,24 +9,24 @@
 using namespace std;
 const int CLUSTER_MAX_SIZE=200;
 
-float ** matrixGen(char * filename, int &rows)
+double ** matrixGen(char * filename, int &rows)
 {
   cout << "Be sure that the file has no more than 5000 rows" << '\n'; 
   string line;
   string splitter="";
   rows=0;
-  float ** matrix=new float *[5000];
+  double ** matrix=new double *[5000];
   ifstream myfile (filename);
 
   if (myfile.is_open())
 
   {
     int i=0,h=0,j=0;
-    float * tmp=new float[2];
+    double * tmp=new double[3];//(x,y,capacity)
     while ( getline (myfile,line) && j<5000 )
     { 
       i=0;h=0;
-      while(i<line.length() && h<3)
+      while(i<line.length() && h<4)
       {
         splitter="";
         while(line[i] == char(32) && i<line.length()) i++;
@@ -38,9 +38,10 @@ float ** matrixGen(char * filename, int &rows)
         if (h>0) tmp[h-1]= atof(splitter.c_str());
         h++;
       }
-      matrix[j]=new float[2];
+      matrix[j]=new double[3];
       matrix[j][0]=tmp[0];
       matrix[j][1]=tmp[1];
+      matrix[j][2]=tmp[2];//Capacity
       j++;
     }
    myfile.close();
@@ -51,35 +52,17 @@ float ** matrixGen(char * filename, int &rows)
  return matrix;
 }
 
-
-float ** matr_Med()
+double dist_eucl( double *a, double *b)
 {
-  float ** med=new float *[4];
-  for(int i=0;i<4;i++)
-    med[i]=new float[2];  
-  
-  med[0][0]=1;
-  med[0][1]=1;
-  med[1][0]=2;
-  med[1][1]=1;
-  med[2][0]=4;
-  med[2][1]=3;
-  med[3][0]=5;
-  med[3][1]=4;
-  return med;
-}
-
-float dist_eucl( float *a, float *b)
-{
-  float dist = (float)sqrt(pow((a[0]-b[0]),2)+pow((a[1]-b[1]),2));
+  double dist = (double)sqrt(pow((a[0]-b[0]),2)+pow((a[1]-b[1]),2));
   return dist;
 }
 
-float ** matr_D(float ** m, float ** c, int centroids, int entries)
+double ** matr_D(double ** m, double ** c, int centroids, int entries)
 {
- float ** matr_D = new float * [centroids];
+ double ** matr_D = new double * [centroids];
  for(int i=0;i<centroids;i++)
-    matr_D[i]=new float [entries];
+    matr_D[i]=new double [entries];
  
  for (int i=0;i<entries;i++)
    for (int h=0;h<centroids;h++)
@@ -88,34 +71,38 @@ float ** matr_D(float ** m, float ** c, int centroids, int entries)
  return matr_D; 
 }
 
-float ** matr_G(float ** m, int centroids, int rows)
+double ** matr_G(double ** m, double ** starting, int centroids, int rows, double ** capacity)
 {
- float ** matr_G = new float * [centroids];
+ double ** matr_G = new double * [centroids];
  int max_i=0;
- int * clusters = new int[centroids];
+ double * clusters = new double[centroids];
  for (int i=0;i<centroids;i++)
-    matr_G[i]=new float [rows];
+    matr_G[i]=new double [rows];
  for(int i=0;i<centroids;i++)
       clusters[i]=0;
 
  for (int i=0;i<rows;i++)
   {
-    max_i=0;
+    max_i=0;  
     for(int h=0;h<centroids;h++)
       {
-        if(m[h][i]<m[max_i][i] && clusters[h]<CLUSTER_MAX_SIZE) max_i=h; // constraints to the max size of each cluster
+        if(m[h][i]<m[max_i][i] && clusters[h]+starting[i][2]<CLUSTER_MAX_SIZE) max_i=h; // constraints to the max size of each cluster
         matr_G[h][i]=0;  
       }
-    clusters[max_i]+=1;
-    matr_G[max_i][i]=1;  
 
+    if(clusters[max_i]+starting[max_i][2]<CLUSTER_MAX_SIZE)
+      {
+        clusters[max_i]+=starting[max_i][2];
+        matr_G[max_i][i]=1;  
+      }
   }
+ *capacity= clusters;
  return matr_G; 
 }
 
-float * centroid(float ** start, float * G_sub, int rows)
+double * centroid(double ** start, double * G_sub, int rows)
 {
- float * centroid=new float[2];
+ double * centroid=new double[2];
  centroid[0]=0;centroid[1]=0;
  int c=0;
  for (int i=0;i<rows;i++)
@@ -127,12 +114,13 @@ float * centroid(float ** start, float * G_sub, int rows)
       c++;
      }
   }
+ if (c==0) c=1; // avoid -nan 
  centroid[0]/=c;
  centroid[1]/=c;
  return centroid;  
 }
 
-int G_diff(float ** A, float ** B, int centroids, int rows)
+int G_diff(double ** A, double ** B, int centroids, int rows)
 {
   for(int i=0;i<centroids;i++)
     for (int h=0;h<rows;h++)
@@ -146,30 +134,23 @@ int main () {
 
   char * file="example.txt";
   int rows=0;
-  float ** matrix=matrixGen(file, rows);
-  /*for(int m=0;m<rows;m++)
-    {
-     cout << m << " ";    
-     for(int n=0;n<2;n++)
-      cout << matrix[m][n] << " " ;
-     cout << '\n';
-    }
-  */
-	
-  float ** c=new float*[10];
+  double ** matrix=matrixGen(file, rows);
+  double ** c=new double*[10];
   int centroids=10;
+  double * capacities=0;
   cout << "Creating "<< centroids <<" centroids" << '\n';
   for(int i=0;i<centroids;i++)
     {
-     c[i]=new float[2];
+     c[i]=new double[2];
      c[i][0]=matrix[i][0];
      c[i][1]=matrix[i][1];
      cout << "C" << i << " " << c[i][0] << " - " << c[i][1] << '\n';
     }
   
-  float ** D=matr_D(matrix,c,centroids,rows);
-  float ** G=matr_G(D,centroids,rows);
-
+  double ** D=matr_D(matrix,c,centroids,rows);
+  double ** G=matr_G(D,matrix,centroids,rows,&capacities);
+  for(int i=0;i<centroids;i++)
+    cout << i << " capacities:  " << capacities[i] << '\n';
   cout << "Matrix D" << '\n';
   for(int i=0;i<centroids;i++)
     {
@@ -190,7 +171,8 @@ int main () {
   for(int i=0;i<centroids;i++)
     {
       c[i]=centroid(matrix,G[i],rows);   
-      cout << "C" << i << " " << c[i][0] << " - " << c[i][1] << '\n';
+      cout << "C" << i << " " << c[i][0] << " - " << c[i][1];
+      cout << " ----  Associated Cluster Capacity " << capacities[i] <<'\n';
     }
   cout << "---------------------" << '\n';
   
@@ -198,16 +180,16 @@ int main () {
   /*--------------ITERATIVE----------------*/
   
   /*
-  float ** matr_D(float ** m, float ** c, int centroids, int entries)
-  float ** matr_G(float ** m, int centroids, int rows)
-  G_diff(float ** A, float ** B, int centroids, int rows)
+  double ** matr_D(double ** m, double ** c, int centroids, int entries)
+  double ** matr_G(double ** m, int centroids, int rows)
+  G_diff(double ** A, double ** B, int centroids, int rows)
   */
-  cout << "G_diff " << G_diff(G,matr_G(matr_D(matrix,c,centroids,rows),centroids,rows),centroids,rows) << '\n';
+  cout << "G_diff " << G_diff(G,matr_G(matr_D(matrix,c,centroids,rows),matrix,centroids,rows,&capacities),centroids,rows) << '\n';
 
-  while(G_diff(G,matr_G(matr_D(matrix,c,centroids,rows),centroids,rows),centroids,rows) ==0 )
+  while(G_diff(G,matr_G(matr_D(matrix,c,centroids,rows),matrix,centroids,rows,&capacities),centroids,rows) ==0 )
   {
     D=matr_D(matrix,c,centroids,rows);
-    G=matr_G(D,centroids,rows);
+    G=matr_G(D,matrix,centroids,rows,&capacities);
     cout << "Matrix D" << '\n';
     for(int i=0;i<centroids;i++)
     {
@@ -227,7 +209,7 @@ int main () {
     for(int i=0;i<centroids;i++)
      {
       c[i]=centroid(matrix,G[i],rows);   
-      cout << "C" << i << " " << c[i][0] << " - " << c[i][1] << '\n';
+      cout << "C" << i << " " << c[i][0] << " - " << c[i][1] << " ----  Associated Cluster Capacity " << capacities[i] << '\n';
      }
     cout << "---------------------" << '\n';
   }

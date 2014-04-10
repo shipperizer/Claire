@@ -136,8 +136,8 @@ float ** centInt(int num)
  for(int i=0;i<num;i++)
     { 
       a[i]=new float[2]; 
-      a[i][0]=(float)(rand()/100);
-      a[i][1]=(float)(rand()/100);
+      a[i][0]=(float)(rand()%1000);
+      a[i][1]=(float)(rand()%1000);
     }
  return a;
 }
@@ -152,12 +152,7 @@ int main () {
   float * capacities=0;
   cout << "Creating "<< centroids <<" centroids" << '\n';
   for(int i=0;i<centroids;i++)
-    {
-     c[i]=new float[2];
-     c[i][0]=matrix[i][0];
-     c[i][1]=matrix[i][1];
-     cout << "C" << i << " " << c[i][0] << " - " << c[i][1] << '\n';
-    }
+    { cout << "C" << i << " " << c[i][0] << " - " << c[i][1] << '\n';  }
   
   float ** D=matr_D(matrix,c,centroids,rows);
   float ** G=matr_G(D,matrix,centroids,rows,&capacities);

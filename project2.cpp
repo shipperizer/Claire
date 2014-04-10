@@ -127,8 +127,8 @@ float ** centInt(int num)
  for(int i=0;i<num;i++)
     { 
       a[i]=new float[2]; 
-      a[i][0]=(float)(rand()/100);
-      a[i][1]=(float)(rand()/100);
+      a[i][0]=(float)(rand()%1000);
+      a[i][1]=(float)(rand()%1000);
     }
  return a;
 }

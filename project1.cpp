@@ -79,6 +79,7 @@ float * centroid(float ** start, float * G_sub)
       c++;
      }
   }
+ if(c==0) c=1; 
  centroid[0]/=c;
  centroid[1]/=c;
  return centroid;  
@@ -94,12 +95,23 @@ int G_diff(float ** A, float ** B)
   return 1;
 }
 
+ float ** centInt(int num)
+{
+ float ** a= new float *[num];
+ for(int i=0;i<num;i++)
+    { 
+      a[i]=new float[2]; 
+      a[i][0]=(float)(rand()/100);
+      a[i][1]=(float)(rand()/100);
+    }
+ return a;
+}
+
 int main () {
 	float ** med=matr_Med();
-  float * c1=new float[2], * c2=new float[2];
-  c1[0]=1;c1[1]=1;
-  c2[0]=2;c2[1]=1;
-  float ** D=matr_D(med,c1,c2);
+  int noCen=2;
+  float ** c=centInt(noCen);
+  float ** D=matr_D(med,c[0],c[1]);
   float ** G=matr_G(D);
   cout << "Matrix D" << '\n';
   for(int i=0;i<2;i++)
@@ -117,15 +129,15 @@ int main () {
      cout << '\n';
     }
   cout << "---------------------" << '\n';
-  c1=centroid(med,G[0]);
-  c2=centroid(med,G[1]);
-  cout << "c1 =" << c1[0]<<"-"<<c1[1] << '\n';
-  cout << "c2 =" << c2[0]<<"-"<<c2[1] << '\n';
+  c[0]=centroid(med,G[0]);
+  c[1]=centroid(med,G[1]);
+  cout << "c1 =" << c[0][0]<<"-"<<c[0][1] << '\n';
+  cout << "c2 =" << c[1][0]<<"-"<<c[1][1] << '\n';
   
   /*--------------ITERATIVE----------------*/
-  while(G_diff(G,matr_G(matr_D(med,c1,c2)))==0) 
+  while(G_diff(G,matr_G(matr_D(med,c[0],c[1])))==0) 
   {
-    D=matr_D(med,c1,c2);
+    D=matr_D(med,c[0],c[1]);
     G=matr_G(D);
     cout << "Matrix D" << '\n';
    for(int i=0;i<2;i++)
@@ -143,10 +155,10 @@ int main () {
      cout << '\n';
     }
    cout << "---------------------" << '\n';
-   c1=centroid(med,G[0]);
-   c2=centroid(med,G[1]);
-   cout << "c1 =" << c1[0]<<"-"<<c1[1] << '\n';
-   cout << "c2 =" << c2[0]<<"-"<<c2[1] << '\n';
+   c[0]=centroid(med,G[0]);
+   c[1]=centroid(med,G[1]);
+   cout << "c1 =" << c[0][0]<<"-"<<c[0][1] << '\n';
+   cout << "c2 =" << c[1][0]<<"-"<<c[1][1] << '\n';
   }
 
   return 0;

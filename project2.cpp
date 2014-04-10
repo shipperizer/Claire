@@ -105,6 +105,7 @@ float * centroid(float ** start, float * G_sub, int rows)
       c++;
      }
   }
+ if(c==0) c=1; 
  centroid[0]/=c;
  centroid[1]/=c;
  return centroid;  
@@ -120,30 +121,28 @@ int G_diff(float ** A, float ** B, int centroids, int rows)
   return 1;
 }
 
+float ** centInt(int num)
+{
+ float ** a= new float *[num];
+ for(int i=0;i<num;i++)
+    { 
+      a[i]=new float[2]; 
+      a[i][0]=(float)(rand()/100);
+      a[i][1]=(float)(rand()/100);
+    }
+ return a;
+}
+
 int main () {
 
   char * file="example.txt";
   int rows=0;
   float ** matrix=matrixGen(file, rows);
-  /*for(int m=0;m<rows;m++)
-    {
-     cout << m << " ";    
-     for(int n=0;n<2;n++)
-      cout << matrix[m][n] << " " ;
-     cout << '\n';
-    }
-  */
-	
-  float ** c=new float*[10];
   int centroids=10;
+  float ** c=centInt(centroids);
   cout << "Creating "<< centroids <<" centroids" << '\n';
   for(int i=0;i<centroids;i++)
-    {
-     c[i]=new float[2];
-     c[i][0]=matrix[i][0];
-     c[i][1]=matrix[i][1];
-     cout << "C" << i << " " << c[i][0] << " - " << c[i][1] << '\n';
-    }
+    { cout << "C" << i << " " << c[i][0] << " - " << c[i][1] << '\n'; }
   
   float ** D=matr_D(matrix,c,centroids,rows);
   float ** G=matr_G(D,centroids,rows);

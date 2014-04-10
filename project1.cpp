@@ -95,7 +95,7 @@ int G_diff(float ** A, float ** B)
   return 1;
 }
 
- float ** centInt(int num)
+float ** centInt(int num)
 {
  float ** a= new float *[num];
  for(int i=0;i<num;i++)

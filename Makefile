@@ -1,7 +1,7 @@
 CPP=g++
 FILES=
 OUTPUT=project
-OUTPUTS= project1 project2 project3
+OUTPUTS= project1.out project2.out project3.out
 
 
 compile:	

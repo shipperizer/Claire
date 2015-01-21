@@ -11,6 +11,7 @@ compile:
 	@echo "Now launch the executable with ./projectX.out > textfile"
 
 install: clean compile
+	@echo "Done man"
 
 clean:
 	rm $(OUTPUTS)

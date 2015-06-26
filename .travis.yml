@@ -9,3 +9,6 @@ script: "make compile"
 os:
  - osx
  - linux
+
+notifications:
+   email: false 

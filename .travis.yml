@@ -1,3 +1,11 @@
-language: c++
-install: "make compile"
+language: cpp
 
+compiler: 
+ - clang
+ - gcc
+ - g++
+scripts: "make compile"
+
+os:
+ - osx
+ - linux

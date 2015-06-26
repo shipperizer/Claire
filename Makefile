@@ -10,7 +10,7 @@ compile:
 	$(CPP) $(OUTPUT)3.cpp -o $(OUTPUT)3.out
 	@echo "Now launch the executable with ./projectX.out > textfile"
 
-install: clean compile
+install: compile
 
 clean:
 	rm $(OUTPUTS)
